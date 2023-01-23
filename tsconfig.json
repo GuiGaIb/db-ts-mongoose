@@ -23,7 +23,6 @@
 
     /* Emit */
     "declaration": true,
-    "declarationMap": true,
     "outDir": "./build",
     "removeComments": true,
     "importsNotUsedAsValues": "error",
