@@ -2,6 +2,7 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'child_process'
 import { existsSync, readFile } from 'fs'
 import { Connection, createConnection } from 'mongoose'
 import terminate from 'terminate/promise'
+import J from 'dev-journal'
 import { InitError, NotFoundError } from './errors.js'
 
 export interface MongoDbInitConfig {
@@ -43,6 +44,7 @@ export class MongoDbInstance {
       this._dbPath = dbPath
       this.auth = auth || true
       this.connections = {}
+      J.info(`MongoDbInstance created with dbPath: "${dbPath} and auth ${auth ? 'enforced' : 'disabled'}"`, 'DB-')
    }
 
    public async createConnection(opts: CreateConnectionOpts) {
@@ -61,16 +63,19 @@ export class MongoDbInstance {
          serverSelectionTimeoutMS: 2000,
       }).asPromise()
       this.connections[opts.name] = connection
+      J.ok(`Named connection ${opts.name} opened successfully`, 'DB-')
    }
 
    public async closeConnection(name: string) {
       if (!this.connections[name]) throw new NotFoundError(`connection with name ${name} does not exist`)
       await this.connections[name]?.close()
       this.connections[name] = undefined
+      J.ok(`Named connection ${name} closed successfully`, 'DB-')
    }
 
    public init() {
       this.process = spawn(`mongod --dbpath ${this.dbPath} --pidfilepath ${this.dbPath}.pid ${this.auth == true ? '--auth' : ''}`, { shell: true })
+      J.info(`Mongod child process created with pid ${this.process.pid}`, 'DB-')
    }
 
    private async readPidFromFile(): Promise<number> {
@@ -85,11 +90,21 @@ export class MongoDbInstance {
    }
 
    public async terminate() {
-      for (const name in this.connections) {
-         await this.closeConnection(name)
+      try {
+         J.info('Initiating termination routine...', 'DB-')
+         J.info('Closing existing connections...', 'DB-')
+         for (const name in this.connections) {
+            await this.closeConnection(name)
+         }
+         J.ok('Connections closed successfully', 'DB-')
+         J.info('Terminating mongod process...', 'DB-')
+         const pid = await this.readPidFromFile()
+         await terminate(pid)
+         J.ok('Mongod process terminated successfully', 'DB-')
+      } catch (error: any) {
+         J.error(`${error.name}: ${error.message} caught in terminate method`, 'DB-')
       }
-      const pid = await this.readPidFromFile()
-      return await terminate(pid)
+      return
    }
 }
 
