@@ -37,5 +37,7 @@
     "mongoose": "6.8.4",
     "terminate": "^2.6.1"
   },
-  "type": "module"
+  "type": "module",
+  "types": "./types/.index.ts",
+  "exports": ["./index.js"]
 }
