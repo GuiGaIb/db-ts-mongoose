@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/GuiGaIb/db-ts-mongoose#readme",
   "devDependencies": {
+   "dev-journal": "file:../dev-journal",
     "@types/bcryptjs": "^2.4.2",
     "@types/node": "^18.11.18",
     "cross-env": "^7.0.3",
