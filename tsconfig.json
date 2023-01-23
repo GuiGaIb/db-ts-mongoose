@@ -23,7 +23,7 @@
 
     /* Emit */
     "declaration": true,
-    "outDir": "./build",
+    "outDir": "./",
     "removeComments": true,
     "importsNotUsedAsValues": "error",
     "newLine": "crlf",

@@ -1,8 +1,8 @@
 {
   "name": "db-ts-mongoose",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "MongoDB implementation using TS 4.9.4 + Mongoose 6.8.4",
-  "main": "build/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "mongod": "mongod --dbpath ./.mongodb  --pidfilepath ./.mongodb/.pid --port 27017 --auth"
