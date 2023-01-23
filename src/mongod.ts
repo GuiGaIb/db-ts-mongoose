@@ -1,9 +1,11 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'child_process'
 import { existsSync, readFile } from 'fs'
 import { Connection, createConnection } from 'mongoose'
-import terminate from 'terminate/promise'
+import terminate from 'terminate'
+import util from 'util'
 import J from 'dev-journal'
 import { InitError, NotFoundError } from './errors.js'
+import { unlink } from 'fs'
 
 export interface MongoDbInitConfig {
    dbPath?: string
@@ -73,9 +75,18 @@ export class MongoDbInstance {
       J.ok(`Named connection ${name} closed successfully`, 'DB-')
    }
 
-   public init() {
-      this.process = spawn(`mongod --dbpath ${this.dbPath} --pidfilepath ${this.dbPath}/.pid ${this.auth == true ? '--auth' : ''}`, { shell: true })
-      J.info(`Mongod child process created with pid ${this.process.pid}`, 'DB-')
+   public init(): Promise<void> {
+      return new Promise((resolve, reject) => {
+         try {
+            this.process = spawn(`mongod --dbpath ${this.dbPath} --pidfilepath ${this.dbPath}/.pid ${this.auth == true ? '--auth' : ''}`, { shell: true })
+            setTimeout(() => {
+               J.info(`Mongod child process created with pid ${this.process.pid}`, 'DB-')
+               resolve(void(0))
+            }, 1500);
+         } catch (error) {
+            reject(error)
+         }
+      })
    }
 
    private async readPidFromFile(): Promise<number> {
@@ -85,6 +96,15 @@ export class MongoDbInstance {
             const dataAsNum = Number(data)
             if (isNaN(dataAsNum)) reject('data read from pid file is NaN')
             resolve(dataAsNum)
+         })
+      })
+   }
+
+   private async deletePidFile(): Promise<void> {
+      return new Promise((resolve, reject) => {
+         unlink(`${this.dbPath}/.pid`, err => {
+            if (err) reject(err)
+            resolve(void(0))
          })
       })
    }
@@ -99,8 +119,12 @@ export class MongoDbInstance {
          J.ok('Connections closed successfully', 'DB-')
          J.info('Terminating mongod process...', 'DB-')
          const pid = await this.readPidFromFile()
-         await terminate(pid)
+         await util.promisify(terminate)(pid);
          J.ok('Mongod process terminated successfully', 'DB-')
+         await this.deletePidFile()
+         J.ok('pid file deleted successfully', 'DB-')
+         J.ok('Termination routine executed successfully', 'DB-')
+         J.info('Exiting now...', 'DB-')
       } catch (error: any) {
          J.error(`${error.name}: ${error.message} caught in terminate method`, 'DB-')
       }
