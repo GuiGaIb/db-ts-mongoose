@@ -74,13 +74,13 @@ export class MongoDbInstance {
    }
 
    public init() {
-      this.process = spawn(`mongod --dbpath ${this.dbPath} --pidfilepath ${this.dbPath}.pid ${this.auth == true ? '--auth' : ''}`, { shell: true })
+      this.process = spawn(`mongod --dbpath ${this.dbPath} --pidfilepath ${this.dbPath}/.pid ${this.auth == true ? '--auth' : ''}`, { shell: true })
       J.info(`Mongod child process created with pid ${this.process.pid}`, 'DB-')
    }
 
    private async readPidFromFile(): Promise<number> {
       return new Promise((resolve, reject) => {
-         readFile(this.dbPath + '.pid', { encoding: 'utf-8' }, (err, data) => {
+         readFile(this.dbPath + '/.pid', { encoding: 'utf-8' }, (err, data) => {
             if (err) reject(err)
             const dataAsNum = Number(data)
             if (isNaN(dataAsNum)) reject('data read from pid file is NaN')
