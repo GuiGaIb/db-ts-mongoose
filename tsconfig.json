@@ -7,12 +7,12 @@
     "tsBuildInfoFile": "./.tsbuildinfo",
 
     /* Language and Environment */
-    "target": "ES2020",
-    "lib": ["ES2020"],
+    "target": "ES2022",
+    "lib": ["ES2022"],
     "useDefineForClassFields": true,
 
     /* Modules */
-    "module": "ES2020",
+    "module": "ES2022",
     "rootDir": "./src/",
     "moduleResolution": "node",
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
