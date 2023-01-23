@@ -19,5 +19,5 @@ npm-debug.log*
 # TypeScript cache
 *.tsbuildinfo
 
-# Local MongoDb files
+# Local MongoDB directories
 .mongodb/
