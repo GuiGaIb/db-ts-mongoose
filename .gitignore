@@ -13,9 +13,6 @@ npm-debug.log*
 # Runtime data
 *.pid
 
-# TypeScript declaration files
-/types/
-
 # TypeScript cache
 *.tsbuildinfo
 
