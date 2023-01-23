@@ -24,7 +24,7 @@
     /* Emit */
     "declaration": true,
     "declarationMap": true,
-    "outDir": "./",
+    "outDir": "./lib",
     "removeComments": true,
     "importsNotUsedAsValues": "error",
     "newLine": "crlf",
